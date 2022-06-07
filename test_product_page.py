@@ -1,7 +1,37 @@
+import time
+
 import pytest
 
+from .pages.login_page import LoginPage
 from .pages.basket_page import BasketPage
 from .pages.product_page import ProductPage
+
+
+@pytest.mark.new
+class TestUserAddToBasketFromProductPage():
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setup(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/en-gb/accounts/login/"
+        login_page = LoginPage(browser, link)
+        login_page.open()
+        login_page.register_new_user(str(time.time()) + "@fakemail.org", "dfs456dESDF3")
+        login_page.should_be_authorized_user()
+
+    def test_user_cant_see_success_message(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/studyguide-for-counter-hack-reloaded_205/"
+        product_page = ProductPage(browser, link)
+        product_page.open()
+        product_page.should_not_be_success_message()
+
+    def test_user_can_add_product_to_basket(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/ru/catalogue/the-shellcoders-handbook_209/?promo=newYear"
+        product_page = ProductPage(browser, link)
+        product_page.open()
+        product_page.add_product_to_cart()
+        product_page.solve_quiz_and_get_code()
+        product_page.should_be_alert_that_the_product_has_been_added_to_the_basket()
+        product_page.should_be_alert_with_basket_cost()
 
 
 @pytest.mark.skip
@@ -26,19 +56,19 @@ def test_guest_can_add_product_to_basket(browser, link):
     product_page.should_be_alert_with_basket_cost()
 
 
+def test_guest_cant_see_success_message(browser):
+    link = "http://selenium1py.pythonanywhere.com/catalogue/studyguide-for-counter-hack-reloaded_205/"
+    product_page = ProductPage(browser, link)
+    product_page.open()
+    product_page.should_not_be_success_message()
+
+
 @pytest.mark.xfail
 def test_guest_cant_see_success_message_after_adding_product_to_basket(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/studyguide-for-counter-hack-reloaded_205/"
     product_page = ProductPage(browser, link)
     product_page.open()
     product_page.add_product_to_cart()
-    product_page.should_not_be_success_message()
-
-
-def test_guest_cant_see_success_message(browser):
-    link = "http://selenium1py.pythonanywhere.com/catalogue/studyguide-for-counter-hack-reloaded_205/"
-    product_page = ProductPage(browser, link)
-    product_page.open()
     product_page.should_not_be_success_message()
 
 
